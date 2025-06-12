@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Votação Esportiva - 2º EMTI</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ff6b6b 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Elementos esportivos flutuantes animados */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-ball {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .volleyball {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #fff, #e0e0e0);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            top: 15%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .volleyball::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #333;
+            transform: translateY(-50%);
+        }
+
+        .volleyball::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #333;
+            transform: translateX(-50%);
+        }
+
+        .futsal-ball {
+            width: 55px;
+            height: 55px;
+            background: radial-gradient(circle at 30% 30%, #fff, #333);
+            top: 70%;
+            right: 15%;
+            animation-delay: -2s;
+        }
+
+        .futsal-ball::after {
+            content: '';
+            position: absolute;
+            top: 15%;
+            left: 15%;
+            right: 15%;
+            bottom: 15%;
+            border: 2px solid #fff;
+            border-radius: 50%;
+        }
+
+        .basketball {
+            width: 65px;
+            height: 65px;
+            background: radial-gradient(circle at 30% 30%, #ff8c42, #d2691e);
+            top: 30%;
+            right: 8%;
+            animation-delay: -1s;
+        }
+
+        .basketball::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #000;
+            transform: translateY(-50%);
+        }
+
+        .basketball::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #000;
+            transform: translateX(-50%);
+        }
+
+        .handball {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle at 30% 30%, #4ecdc4, #2c5aa0);
+            top: 60%;
+            left: 20%;
+            animation-delay: -3s;
+        }
+
+        .peteca {
+            width: 40px;
+            height: 60px;
+            background: linear-gradient(to bottom, #feca57 0%, #feca57 30%, #fff 30%);
+            border-radius: 50% 50% 20% 20%;
+            top: 25%;
+            left: 75%;
+            animation-delay: -4s;
+        }
+
+        .peteca::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 15px solid #fff;
+        }
+
+        .net {
+            position: absolute;
+            width: 80px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            top: 45%;
+            left: 45%;
+            animation: sway 4s ease-in-out infinite;
+        }
+
+        .net::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 4px,
+                rgba(255, 255, 255, 0.3) 4px,
+                rgba(255, 255, 255, 0.3) 5px
+            ),
+            repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 6px,
+                rgba(255, 255, 255, 0.3) 6px,
+                rgba(255, 255, 255, 0.3) 7px
+            );
+        }
+
+        .goal-post {
+            position: absolute;
+            width: 60px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.5);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            top: 80%;
+            right: 35%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .goal-post::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 3px,
+                rgba(255, 255, 255, 0.2) 3px,
+                rgba(255, 255, 255, 0.2) 4px
+            ),
+            repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 5px,
+                rgba(255, 255, 255, 0.2) 5px,
+                rgba(255, 255, 255, 0.2) 6px
+            );
+        }
+
+        .whistle {
+            position: absolute;
+            width: 30px;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            top: 10%;
+            right: 60%;
+            animation: bounce 3s ease-in-out infinite;
+        }
+
+        .whistle::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 8px solid rgba(255, 255, 255, 0.7);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+            25% { transform: translateY(-20px) rotate(5deg); opacity: 1; }
+            50% { transform: translateY(-10px) rotate(-3deg); opacity: 0.8; }
+            75% { transform: translateY(-25px) rotate(8deg); opacity: 1; }
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* Página de Cadastro */
+        .register-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .register-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23ffffff" stop-opacity="0"/></radialGradient></defs><circle cx="200" cy="200" r="150" fill="url(%23a)"/><circle cx="800" cy="300" r="100" fill="url(%23a)"/><circle cx="400" cy="700" r="200" fill="url(%23a)"/><circle cx="900" cy="800" r="120" fill="url(%23a)"/></svg>') no-repeat center center;
+            background-size: cover;
+            opacity: 0.5;
+        }
+
+        .register-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            z-index: 1;
+            animation: slideIn 1s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .register-container h1 {
+            font-size: 2.8rem;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .register-container p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 1rem;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group select {
+            cursor: pointer;
+        }
+
+        .form-group select option {
+            background: #4a5568;
+            color: white;
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .register-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .register-btn:hover::before {
+            left: 100%;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Página Principal */
+        .main-page {
+            display: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 25px;
+            border-radius: 15px;
+            margin: 20px auto;
+            max-width: 400px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        .results-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 20px;
+        }
+
+        .results-panel h3 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+
+        .stats {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-weight: bold;
+        }
+
+        .total-votes {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #4a5568;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        .category-section {
+            margin-bottom: 20px;
+        }
+
+        .category-title {
+            font-size: 1.1rem;
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+
+        .database-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            color: white;
+        }
+
+        .database-info h4 {
+            margin-bottom: 10px;
+            color: #feca57;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .register-container {
+                padding: 30px 20px;
+            }
+            
+            .register-container h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Página de Cadastro -->
+    <div class="register-page" id="registerPage">
+        <!-- Elementos esportivos flutuantes -->
+        <div class="floating-elements">
+            <div class="floating-ball volleyball"></div>
+            <div class="floating-ball futsal-ball"></div>
+            <div class="floating-ball basketball"></div>
+            <div class="floating-ball handball"></div>
+            <div class="floating-ball peteca"></div>
+            <div class="net"></div>
+            <div class="goal-post"></div>
+            <div class="whistle"></div>
+        </div>
+        
+        <div class="register-container">
+            <h1>🏆 Análise Esportiva</h1>
+            <p>Projeto do 2º Ano EMTI - Pesquisa sobre Esportes de Invasão e Rede</p>
+            
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="studentName">Nome do Aluno</label>
+                    <input type="text" id="studentName" placeholder="Digite seu nome completo" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="studentClass">Turma</label>
+                    <select id="studentClass" required>
+                        <option value="">Selecione sua turma</option>
+                        <optgroup label="Ensino Fundamental">
+                            <option value="6º ano regular">6º ano regular</option>
+                            <option value="6º ano integral">6º ano integral</option>
+                            <option value="7º ano regular">7º ano regular</option>
+                            <option value="7º ano integral">7º ano integral</option>
+                            <option value="8º ano regular">8º ano regular</option>
+                            <option value="8º ano integral">8º ano integral</option>
+                            <option value="9º ano regular">9º ano regular</option>
+                            <option value="9º ano integral">9º ano integral</option>
+                        </optgroup>
+                        <optgroup label="Ensino Médio">
+                            <option value="1º ano EMTI">1º ano EMTI</option>
+                            <option value="1º ano regular">1º ano regular</option>
+                            <option value="2º ano EMTI">2º ano EMTI</option>
+                            <option value="2º ano regular">2º ano regular</option>
+                            <option value="3º ano">3º ano</option>
+                        </optgroup>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sportChoice">Escolha seu esporte favorito</label>
+                    <select id="sportChoice" required>
+                        <option value="">Selecione um esporte</option>
+                        <optgroup label="🚀 Esportes de Invasão">
+                            <option value="Futsal">⚽ Futsal</option>
+                            <option value="Basquete">🏀 Basquete</option>
+                            <option value="Handebol">🤾 Handebol</option>
+                        </optgroup>
+                        <optgroup label="🏐 Esportes de Rede">
+                            <option value="Vôlei">🏐 Vôlei</option>
+                            <option value="Peteca">🏸 Peteca</option>
+                        </optgroup>
+                    </select>
+                </div>
+                
+                <button type="submit" class="register-btn">
+                    Participar da Pesquisa 🚀
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Página Principal -->
+    <div class="main-page" id="mainPage">
+        <div class="container">
+            <div class="header">
+                <h1>🏆 Resultados da Pesquisa Esportiva</h1>
+                <div class="user-info" id="userInfo"></div>
+                <p style="color: rgba(255, 255, 255, 0.9);">Análise em tempo real dos esportes preferidos - 2º EMTI</p>
+            </div>
+
+            <div class="main-content">
+                <div class="chart-container">
+                    <div class="chart-wrapper">
+                        <canvas id="sportsChart"></canvas>
+                    </div>
+                    <div class="total-votes">
+                        Total de Participantes: <span id="totalVotes">0</span>
+                    </div>
+                </div>
+
+                <div class="results-panel">
+                    <h3>📊 Resultados por Categoria</h3>
+                    
+                    <div class="category-section">
+                        <div class="category-title">🚀 Esportes de Invasão</div>
+                        <div class="stats" id="invasionStats"></div>
+                    </div>
+                    
+                    <div class="category-section">
+                        <div class="category-title">🏐 Esportes de Rede</div>
+                        <div class="stats" id="networkStats"></div>
+                    </div>
+                    
+                    <div class="database-info">
+                        <h4>💾 Banco de Dados</h4>
+                        <p>Todas as respostas são armazenadas automaticamente. Total de registros: <span id="dbCount">0</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Banco de dados simulado com persistência local
+        let database = JSON.parse(localStorage.getItem('sportsDatabase') || '[]');
+        let sportsData = JSON.parse(localStorage.getItem('sportsData') || '{"Futebol": 0, "Basquete": 0, "Handebol": 0, "Vôlei": 0, "Peteca": 0}');
+
+        // Cores para cada esporte
+        const colors = {
+            'Futebol': '#ff6b6b',
+            'Basquete': '#4ecdc4',
+            'Handebol': '#96ceb4',
+            'Vôlei': '#45b7d1',
+            'Peteca': '#feca57'
+        };
+
+        // Categorias
+        const invasionSports = ['Futebol', 'Basquete', 'Handebol'];
+        const networkSports = ['Vôlei', 'Peteca'];
+
+        let chart;
+
+        // Inicializar gráfico
+        function initChart() {
+            const ctx = document.getElementById('sportsChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(sportsData),
+                    datasets: [{
+                        data: Object.values(sportsData),
+                        backgroundColor: Object.values(colors),
+                        borderWidth: 3,
+                        borderColor: '#fff',
+                        hoverBorderWidth: 5,
+                        hoverBorderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((context.parsed * 100) / total).toFixed(1) : 0;
+                                    return `${context.label}: ${context.parsed} votos (${percentage}%)`;
+                                }
+                            },
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#fff',
+                            borderWidth: 1
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 1000
+                    },
+                    cutout: '50%'
+                }
+            });
+        }
+
+        // Processar formulário de registro
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('studentName').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const sport = document.getElementById('sportChoice').value;
+            
+            // Adicionar ao banco de dados
+            const student = {
+                id: database.length + 1,
+                name: name,
+                class: studentClass,
+                sport: sport,
+                timestamp: new Date().toISOString()
+            };
+            
+            database.push(student);
+            sportsData[sport]++;
+            
+            // Salvar no localStorage para persistir os votos
+            localStorage.setItem('sportsDatabase', JSON.stringify(database));
+            localStorage.setItem('sportsData', JSON.stringify(sportsData));
+            
+            // Mostrar informações do usuário
+            document.getElementById('userInfo').innerHTML = `
+                👤 ${name} - ${studentClass} | Voto: ${sport}
+            `;
+            
+            // Ir para página principal
+            document.getElementById('registerPage').style.display = 'none';
+            document.getElementById('mainPage').style.display = 'block';
+            
+            // Inicializar e atualizar gráfico
+            initChart();
+            updateStats();
+        });
+
+        // Atualizar estatísticas
+        function updateStats() {
+            const total = Object.values(sportsData).reduce((a, b) => a + b, 0);
+            document.getElementById('totalVotes').textContent = total;
+            document.getElementById('dbCount').textContent = database.length;
+            
+            // Atualizar gráfico
+            if (chart) {
+                chart.data.datasets[0].data = Object.values(sportsData);
+                chart.update('active');
+            }
+            
+            // Estatísticas de esportes de invasão
+            const invasionContainer = document.getElementById('invasionStats');
+            invasionContainer.innerHTML = '';
+            invasionSports.forEach(sport => {
+                const votes = sportsData[sport];
+                const percentage = total > 0 ? ((votes / total) * 100).toFixed(1) : 0;
+                const statItem = document.createElement('div');
+                statItem.className = 'stat-item';
+                statItem.innerHTML = `
+                    <span class="stat-label">${sport}</span>
+                    <span class="stat-value">${votes} (${percentage}%)</span>
+                `;
+                invasionContainer.appendChild(statItem);
+            });
+            
+            // Estatísticas de esportes de rede
+            const networkContainer = document.getElementById('networkStats');
+            networkContainer.innerHTML = '';
+            networkSports.forEach(sport => {
+                const votes = sportsData[sport];
+                const percentage = total > 0 ? ((votes / total) * 100).toFixed(1) : 0;
+                const statItem = document.createElement('div');
+                statItem.className = 'stat-item';
+                statItem.innerHTML = `
+                    <span class="stat-label">${sport}</span>
+                    <span class="stat-value">${votes} (${percentage}%)</span>
+                `;
+                networkContainer.appendChild(statItem);
+            });
+        }
+
+        // Console para verificar banco de dados (apenas para desenvolvimento)
+        window.viewDatabase = function() {
+            console.log('Banco de Dados:', database);
+            console.log('Estatísticas:', sportsData);
+        };
+    </script>
+</body>
+</html>
