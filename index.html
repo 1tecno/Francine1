@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Votação Esportiva - 2º EMTI</title>
+    <title>Votação Esportiva Interativa - 2º EMTI</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Righteous&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -13,12 +15,13 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ff6b6b 100%);
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a192f 0%, #1a2a6c 50%, #2a4d69 100%);
             min-height: 100vh;
-            color: #333;
+            color: #fff;
             overflow-x: hidden;
             position: relative;
+            background-attachment: fixed;
         }
 
         /* Elementos esportivos flutuantes animados */
@@ -30,19 +33,28 @@
             height: 100%;
             pointer-events: none;
             z-index: 0;
+            overflow: hidden;
         }
 
         .floating-ball {
             position: absolute;
             border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
+            animation: float 8s ease-in-out infinite;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+            opacity: 0.7;
+            transition: transform 0.5s, opacity 0.5s;
+        }
+
+        .floating-ball:hover {
+            opacity: 1;
+            transform: scale(1.1);
         }
 
         .volleyball {
-            width: 60px;
-            height: 60px;
-            background: radial-gradient(circle at 30% 30%, #fff, #e0e0e0);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle at 30% 30%, #fff 0%, #f0f0f0 40%, #e6e6e6 100%);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
             top: 15%;
             left: 10%;
             animation-delay: 0s;
@@ -54,7 +66,7 @@
             top: 50%;
             left: 0;
             right: 0;
-            height: 2px;
+            height: 3px;
             background: #333;
             transform: translateY(-50%);
         }
@@ -65,15 +77,15 @@
             left: 50%;
             top: 0;
             bottom: 0;
-            width: 2px;
+            width: 3px;
             background: #333;
             transform: translateX(-50%);
         }
 
         .futsal-ball {
-            width: 55px;
-            height: 55px;
-            background: radial-gradient(circle at 30% 30%, #fff, #333);
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #fff 0%, #e0e0e0 40%, #333 100%);
             top: 70%;
             right: 15%;
             animation-delay: -2s;
@@ -86,14 +98,15 @@
             left: 15%;
             right: 15%;
             bottom: 15%;
-            border: 2px solid #fff;
+            border: 3px solid #fff;
             border-radius: 50%;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4);
         }
 
         .basketball {
-            width: 65px;
-            height: 65px;
-            background: radial-gradient(circle at 30% 30%, #ff8c42, #d2691e);
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle at 30% 30%, #ff8c42 0%, #d2691e 40%, #8b4513 100%);
             top: 30%;
             right: 8%;
             animation-delay: -1s;
@@ -105,9 +118,10 @@
             top: 50%;
             left: 0;
             right: 0;
-            height: 2px;
+            height: 3px;
             background: #000;
             transform: translateY(-50%);
+            border-radius: 50%;
         }
 
         .basketball::before {
@@ -116,53 +130,76 @@
             left: 50%;
             top: 0;
             bottom: 0;
-            width: 2px;
+            width: 3px;
             background: #000;
             transform: translateX(-50%);
+            border-radius: 50%;
         }
 
         .handball {
-            width: 50px;
-            height: 50px;
-            background: radial-gradient(circle at 30% 30%, #4ecdc4, #2c5aa0);
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #4ecdc4 0%, #3a9a9a 40%, #2c5aa0 100%);
             top: 60%;
             left: 20%;
             animation-delay: -3s;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.4);
         }
 
         .peteca {
-            width: 40px;
-            height: 60px;
-            background: linear-gradient(to bottom, #feca57 0%, #feca57 30%, #fff 30%);
+            width: 45px;
+            height: 65px;
+            background: linear-gradient(to bottom, #feca57 0%, #feca57 30%, #fff 30%, #fff 100%);
             border-radius: 50% 50% 20% 20%;
             top: 25%;
             left: 75%;
             animation-delay: -4s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .peteca::after {
             content: '';
             position: absolute;
-            bottom: -10px;
+            bottom: -15px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-top: 15px solid #fff;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 20px solid #fff;
+        }
+
+        .peteca::before {
+            content: '';
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 20px;
+            background: repeating-linear-gradient(
+                45deg,
+                #ff9f43,
+                #ff9f43 5px,
+                #feca57 5px,
+                #feca57 10px
+            );
+            border-radius: 50%;
+            opacity: 0.8;
         }
 
         .net {
             position: absolute;
-            width: 80px;
-            height: 50px;
-            border: 3px solid rgba(255, 255, 255, 0.6);
+            width: 100px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.7);
             border-bottom: none;
-            border-radius: 5px 5px 0 0;
+            border-radius: 10px 10px 0 0;
             top: 45%;
             left: 45%;
-            animation: sway 4s ease-in-out infinite;
+            animation: sway 5s ease-in-out infinite;
+            z-index: 1;
         }
 
         .net::after {
@@ -172,96 +209,65 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 4px,
-                rgba(255, 255, 255, 0.3) 4px,
-                rgba(255, 255, 255, 0.3) 5px
-            ),
-            repeating-linear-gradient(
-                90deg,
-                transparent,
-                transparent 6px,
-                rgba(255, 255, 255, 0.3) 6px,
-                rgba(255, 255, 255, 0.3) 7px
-            );
-        }
-
-        .goal-post {
-            position: absolute;
-            width: 60px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.5);
-            border-bottom: none;
+            background-image: 
+                linear-gradient(0deg, rgba(255,255,255,0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px);
+            background-size: 10px 10px;
             border-radius: 8px 8px 0 0;
-            top: 80%;
-            right: 35%;
-            animation: float 8s ease-in-out infinite;
-        }
-
-        .goal-post::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 3px,
-                rgba(255, 255, 255, 0.2) 3px,
-                rgba(255, 255, 255, 0.2) 4px
-            ),
-            repeating-linear-gradient(
-                90deg,
-                transparent,
-                transparent 5px,
-                rgba(255, 255, 255, 0.2) 5px,
-                rgba(255, 255, 255, 0.2) 6px
-            );
         }
 
         .whistle {
             position: absolute;
-            width: 30px;
+            width: 35px;
             height: 15px;
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 15px;
+            background: linear-gradient(to right, #ddd, #fff);
+            border-radius: 15px 0 0 15px;
             top: 10%;
             right: 60%;
             animation: bounce 3s ease-in-out infinite;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
         }
 
         .whistle::after {
             content: '';
             position: absolute;
-            right: -8px;
+            right: -10px;
             top: 50%;
             transform: translateY(-50%);
             width: 0;
             height: 0;
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            border-left: 8px solid rgba(255, 255, 255, 0.7);
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 10px solid #fff;
+        }
+
+        .whistle::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: #ff6b6b;
+            border-radius: 50%;
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
-            25% { transform: translateY(-20px) rotate(5deg); opacity: 1; }
-            50% { transform: translateY(-10px) rotate(-3deg); opacity: 0.8; }
-            75% { transform: translateY(-25px) rotate(8deg); opacity: 1; }
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-10px, -20px) rotate(5deg); }
+            50% { transform: translate(10px, -10px) rotate(-3deg); }
+            75% { transform: translate(-15px, -25px) rotate(8deg); }
         }
 
         @keyframes sway {
-            0%, 100% { transform: rotate(-2deg); }
-            50% { transform: rotate(2deg); }
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
         }
 
         @keyframes bounce {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
+            50% { transform: translateY(-20px); }
         }
 
         /* Página de Cadastro */
@@ -280,24 +286,37 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23ffffff" stop-opacity="0"/></radialGradient></defs><circle cx="200" cy="200" r="150" fill="url(%23a)"/><circle cx="800" cy="300" r="100" fill="url(%23a)"/><circle cx="400" cy="700" r="200" fill="url(%23a)"/><circle cx="900" cy="800" r="120" fill="url(%23a)"/></svg>') no-repeat center center;
-            background-size: cover;
-            opacity: 0.5;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0) 70%);
+            z-index: 0;
         }
 
         .register-container {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border-radius: 30px;
             padding: 50px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.2);
             text-align: center;
             max-width: 500px;
             width: 90%;
             position: relative;
             z-index: 1;
-            animation: slideIn 1s ease-out;
+            animation: slideIn 1s ease-out, glow 3s infinite alternate;
+            transition: transform 0.5s, box-shadow 0.5s;
+        }
+
+        .register-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4), 
+                        inset 0 0 25px rgba(255, 255, 255, 0.3),
+                        0 0 40px rgba(78, 205, 196, 0.7);
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 15px rgba(78, 205, 196, 0.5), 0 25px 70px rgba(0, 0, 0, 0.3); }
+            100% { box-shadow: 0 0 30px rgba(78, 205, 196, 0.8), 0 25px 70px rgba(0, 0, 0, 0.4); }
         }
 
         @keyframes slideIn {
@@ -312,26 +331,41 @@
         }
 
         .register-container h1 {
-            font-size: 2.8rem;
+            font-family: 'Righteous', cursive;
+            font-size: 3.2rem;
             color: white;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(45deg, #fff, #f0f0f0);
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.7), 0 0 30px rgba(78, 205, 196, 0.8);
+            background: linear-gradient(45deg, #fff, #4ecdc4, #feca57);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: 1px;
+            animation: titleGlow 2s infinite alternate;
+            transition: text-shadow 0.5s;
+        }
+
+        .register-container h1:hover {
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.9), 0 0 50px rgba(78, 205, 196, 0.9);
+        }
+
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(78, 205, 196, 0.5); }
+            100% { text-shadow: 0 0 25px rgba(255, 255, 255, 0.8), 0 0 45px rgba(78, 205, 196, 0.8); }
         }
 
         .register-container p {
             color: rgba(255, 255, 255, 0.9);
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             margin-bottom: 40px;
             line-height: 1.6;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
         .form-group {
             margin-bottom: 25px;
             text-align: left;
+            position: relative;
         }
 
         .form-group label {
@@ -340,19 +374,21 @@
             font-weight: 600;
             margin-bottom: 8px;
             font-size: 1.1rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .form-group input, .form-group select {
             width: 100%;
-            padding: 15px 20px;
+            padding: 16px 22px;
             border: none;
             border-radius: 15px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.18);
             backdrop-filter: blur(10px);
             color: white;
-            font-size: 1rem;
-            border: 2px solid transparent;
+            font-size: 1.05rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
         .form-group input::placeholder {
@@ -361,35 +397,43 @@
 
         .form-group input:focus, .form-group select:focus {
             outline: none;
-            border-color: rgba(255, 255, 255, 0.5);
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 255, 255, 0.3);
         }
 
         .form-group select {
             cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 20px center;
+            background-size: 16px;
         }
 
         .form-group select option {
-            background: #4a5568;
+            background: #2a4d69;
             color: white;
         }
 
         .register-btn {
             width: 100%;
             padding: 18px;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
             border: none;
             border-radius: 15px;
             color: white;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
             position: relative;
             overflow: hidden;
             margin-top: 20px;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            letter-spacing: 0.5px;
+            z-index: 1;
         }
 
         .register-btn::before {
@@ -399,8 +443,9 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.6s;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.7s;
+            z-index: -1;
         }
 
         .register-btn:hover::before {
@@ -408,179 +453,465 @@
         }
 
         .register-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.6), 0 0 20px rgba(255, 255, 255, 0.4);
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
         }
 
-        /* Página Principal */
-        .main-page {
+        /* Página de Votação */
+        .vote-page {
             display: none;
+            min-height: 100vh;
+            position: relative;
+            padding: 30px 20px;
         }
 
-        .container {
-            max-width: 1200px;
+        .vote-container {
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 20px;
         }
 
-        .header {
+        .vote-header {
             text-align: center;
             margin-bottom: 40px;
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
             padding: 30px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            color: white;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .user-info {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 15px 25px;
-            border-radius: 15px;
-            margin: 20px auto;
-            max-width: 400px;
-            color: white;
-            font-weight: 600;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 30px;
-            align-items: start;
-        }
-
-        .chart-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
+            transition: transform 0.5s;
         }
 
-        .chart-container::before {
+        .vote-header:hover {
+            transform: translateY(-5px);
+        }
+
+        .vote-header::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 4px;
+            height: 5px;
             background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+        }
+
+        .vote-header h1 {
+            font-family: 'Righteous', cursive;
+            font-size: 2.8rem;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 0 0 25px rgba(78, 205, 196, 0.6);
+            background: linear-gradient(45deg, #fff, #4ecdc4, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+        }
+
+        .vote-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .sport-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .sport-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0) 100%);
+            z-index: -1;
+        }
+
+        .sport-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .sport-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .sport-card p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .sport-card .sport-icon {
+            font-size: 3.5rem;
+            margin: 20px 0;
+            text-shadow: 0 0 15px rgba(255,255,255,0.5);
+            transition: transform 0.3s;
+        }
+
+        .sport-card:hover .sport-icon {
+            transform: scale(1.2);
+        }
+
+        .vote-btn {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .vote-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.7s;
+            z-index: -1;
+        }
+
+        .vote-btn:hover::before {
+            left: 100%;
+        }
+
+        .vote-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Seção de Prêmio */
+        .prize-section {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            border-radius: 25px;
+            padding: 35px;
+            margin: 40px 0;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+            overflow: hidden;
+            animation: pulsePrize 3s infinite alternate;
+            transition: transform 0.5s;
+        }
+
+        .prize-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .prize-section::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, 
+                rgba(255,255,255,0.1) 0%, 
+                rgba(255,255,255,0.2) 50%, 
+                rgba(255,255,255,0.1) 100%);
+            z-index: -1;
+            border-radius: 30px;
+        }
+
+        .prize-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: white;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            position: relative;
+            display: inline-block;
+        }
+
+        .prize-section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: white;
+            border-radius: 2px;
+        }
+
+        .prize-section p {
+            font-size: 1.3rem;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            color: white;
+            max-width: 800px;
+            margin: 0 auto 25px;
+        }
+
+        .prize-icon {
+            font-size: 4rem;
+            margin: 25px 0;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        .highlight {
+            background: linear-gradient(transparent 60%, rgba(255, 215, 0, 0.5) 60%);
+            font-weight: 700;
+        }
+
+        @keyframes pulsePrize {
+            0% { 
+                box-shadow: 0 0 20px rgba(255, 107, 107, 0.5), 0 15px 40px rgba(0, 0, 0, 0.25);
+                transform: scale(1);
+            }
+            100% { 
+                box-shadow: 0 0 40px rgba(255, 107, 107, 0.8), 0 20px 50px rgba(0, 0, 0, 0.35);
+                transform: scale(1.01);
+            }
+        }
+
+        /* Página de Resultados */
+        .results-page {
+            display: none;
+            min-height: 100vh;
+            position: relative;
+            padding: 30px 20px;
+        }
+
+        .results-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.5s;
+        }
+
+        .results-header:hover {
+            transform: translateY(-5px);
+        }
+
+        .results-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+        }
+
+        .results-header h1 {
+            font-family: 'Righteous', cursive;
+            font-size: 2.8rem;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 0 0 25px rgba(78, 205, 196, 0.6);
+            background: linear-gradient(45deg, #fff, #4ecdc4, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.5s;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .chart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+            border-radius: 3px;
+        }
+
+        .chart-title {
+            text-align: center;
+            font-weight: bold;
+            color: #2a4d69;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(42, 77, 105, 0.1);
         }
 
         .chart-wrapper {
             position: relative;
-            height: 400px;
-            margin-bottom: 20px;
+            height: 350px;
         }
 
-        .results-panel {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 20px;
-        }
-
-        .results-panel h3 {
-            color: #4a5568;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 1.3rem;
-        }
-
-        .stats {
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-        }
-
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-
-        .stat-item:last-child {
-            border-bottom: none;
-        }
-
-        .stat-label {
-            font-weight: 500;
-        }
-
-        .stat-value {
-            font-weight: bold;
-        }
-
-        .total-votes {
-            text-align: center;
-            font-size: 1.1rem;
-            color: #4a5568;
+        .back-button {
+            display: inline-block;
             margin-top: 20px;
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #2a4d69, #4b86b4);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.1rem;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
         }
 
-        .category-section {
-            margin-bottom: 20px;
+        .back-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.7s;
+            z-index: -1;
         }
 
-        .category-title {
-            font-size: 1.1rem;
-            color: #4a5568;
-            margin-bottom: 10px;
-            font-weight: bold;
-            text-align: center;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.05);
-            border-radius: 10px;
+        .back-button:hover::before {
+            left: 100%;
         }
 
-        .database-info {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 20px;
-            color: white;
-        }
-
-        .database-info h4 {
-            margin-bottom: 10px;
-            color: #feca57;
+        .back-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
 
         @media (max-width: 768px) {
-            .main-content {
+            .charts-grid {
                 grid-template-columns: 1fr;
             }
             
             .register-container {
-                padding: 30px 20px;
+                padding: 35px 25px;
             }
             
             .register-container h1 {
+                font-size: 2.6rem;
+            }
+            
+            .vote-header h1, .results-header h1 {
                 font-size: 2.2rem;
             }
+            
+            .prize-section h2 {
+                font-size: 2rem;
+            }
+            
+            .prize-section p {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-top: 40px;
+        }
+
+        /* Loader */
+        .loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 25, 47, 0.9);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .spinner {
+            width: 80px;
+            height: 80px;
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 8px solid #4ecdc4;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+    </div>
+
     <!-- Página de Cadastro -->
     <div class="register-page" id="registerPage">
-        <!-- Elementos esportivos flutuantes -->
         <div class="floating-elements">
             <div class="floating-ball volleyball"></div>
             <div class="floating-ball futsal-ball"></div>
@@ -588,13 +919,12 @@
             <div class="floating-ball handball"></div>
             <div class="floating-ball peteca"></div>
             <div class="net"></div>
-            <div class="goal-post"></div>
             <div class="whistle"></div>
         </div>
         
         <div class="register-container">
-            <h1>🏆 Análise Esportiva</h1>
-            <p>Projeto do 2º Ano EMTI - Pesquisa sobre Esportes de Invasão e Rede</p>
+            <h1>🏆 ANÁLISE ESPORTIVA</h1>
+            <p>Participe da maior pesquisa esportiva da escola! Seu voto ajuda a descobrir qual esporte é o favorito da turma. Vote agora e acompanhe os resultados em tempo real!</p>
             
             <form id="registrationForm">
                 <div class="form-group">
@@ -626,104 +956,198 @@
                     </select>
                 </div>
                 
-                <div class="form-group">
-                    <label for="sportChoice">Escolha seu esporte favorito</label>
-                    <select id="sportChoice" required>
-                        <option value="">Selecione um esporte</option>
-                        <optgroup label="🚀 Esportes de Invasão">
-                            <option value="Futsal">⚽ Futsal</option>
-                            <option value="Basquete">🏀 Basquete</option>
-                            <option value="Handebol">🤾 Handebol</option>
-                        </optgroup>
-                        <optgroup label="🏐 Esportes de Rede">
-                            <option value="Vôlei">🏐 Vôlei</option>
-                            <option value="Peteca">🏸 Peteca</option>
-                        </optgroup>
-                    </select>
-                </div>
-                
-                <button type="submit" class="register-btn">
-                    Participar da Pesquisa 🚀
-                </button>
+                <button type="submit" class="register-btn">Participar</button>
             </form>
         </div>
     </div>
 
-    <!-- Página Principal -->
-    <div class="main-page" id="mainPage">
-        <div class="container">
-            <div class="header">
-                <h1>🏆 Resultados da Pesquisa Esportiva</h1>
-                <div class="user-info" id="userInfo"></div>
-                <p style="color: rgba(255, 255, 255, 0.9);">Análise em tempo real dos esportes preferidos - 2º EMTI</p>
+    <!-- Página de Votação -->
+    <div class="vote-page" id="votePage">
+        <div class="floating-elements">
+            <div class="floating-ball volleyball"></div>
+            <div class="floating-ball futsal-ball"></div>
+            <div class="floating-ball basketball"></div>
+            <div class="floating-ball handball"></div>
+            <div class="floating-ball peteca"></div>
+            <div class="net"></div>
+            <div class="whistle"></div>
+        </div>
+        
+        <div class="vote-container">
+            <div class="vote-header">
+                <h1>VOTAR AGORA</h1>
+                <p>Escolha seu esporte favorito entre as opções abaixo:</p>
             </div>
+            
+            <div class="vote-grid">
+                <!-- Esportes de Invasão -->
+                <div class="sport-card" data-sport="Futsal">
+                    <h3>Futsal</h3>
+                    <p>Esporte de invasão rápido e dinâmico</p>
+                    <div class="sport-icon">⚽</div>
+                    <button class="vote-btn">Votar</button>
+                </div>
+                
+                <div class="sport-card" data-sport="Basquete">
+                    <h3>Basquete</h3>
+                    <p>Esporte de invasão com muita técnica</p>
+                    <div class="sport-icon">🏀</div>
+                    <button class="vote-btn">Votar</button>
+                </div>
+                
+                <div class="sport-card" data-sport="Handebol">
+                    <h3>Handebol</h3>
+                    <p>Esporte de invasão com passes rápidos</p>
+                    <div class="sport-icon">🤾‍♂️</div>
+                    <button class="vote-btn">Votar</button>
+                </div>
+                
+                <!-- Esportes de Rede -->
+                <div class="sport-card" data-sport="Peteca">
+                    <h3>Peteca</h3>
+                    <p>Esporte de rede tradicional brasileiro</p>
+                    <div class="sport-icon">🎯</div>
+                    <button class="vote-btn">Votar</button>
+                </div>
+                
+                <div class="sport-card" data-sport="Vôlei">
+                    <h3>Vôlei</h3>
+                    <p>Esporte de rede com muita estratégia</p>
+                    <div class="sport-icon">🏐</div>
+                    <button class="vote-btn">Votar</button>
+                </div>
+            </div>
+            
+            <!-- Seção de Prêmio em Destaque -->
+            <div class="prize-section">
+                <i class="fas fa-trophy prize-icon"></i>
+                <h2>PRÊMIO ESPECIAL</h2>
+                <p>A turma que tiver a maior participação na votação terá a <span class="highlight">honra de inaugurar a nova quadra da escola</span>!</p>
+                <p>Serão os <span class="highlight">primeiros a entrar na quadra pós-reforma</span> e participarão de uma cerimônia especial com direito a cobertura fotográfica e um pequeno lanche comemorativo!</p>
+                <p>Participe agora e ajude sua turma a conquistar esse privilégio único!</p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 40px;">
+                <button class="back-button" id="voteBackButton">Voltar para Cadastro</button>
+                <button class="register-btn" id="viewResultsBtn" style="margin-left: 20px;">Ver Resultados</button>
+            </div>
+        </div>
+    </div>
 
-            <div class="main-content">
-                <div class="chart-container">
+    <!-- Página de Resultados -->
+    <div class="results-page" id="resultsPage">
+        <div class="floating-elements">
+            <div class="floating-ball volleyball"></div>
+            <div class="floating-ball futsal-ball"></div>
+            <div class="floating-ball basketball"></div>
+            <div class="floating-ball handball"></div>
+            <div class="floating-ball peteca"></div>
+            <div class="net"></div>
+            <div class="whistle"></div>
+        </div>
+        
+        <div class="results-container">
+            <div class="results-header">
+                <h1>RESULTADOS DA VOTAÇÃO</h1>
+                <p>Veja a distribuição dos votos por esporte e por turma</p>
+            </div>
+            
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3 class="chart-title">Distribuição por Esporte</h3>
                     <div class="chart-wrapper">
-                        <canvas id="sportsChart"></canvas>
-                    </div>
-                    <div class="total-votes">
-                        Total de Participantes: <span id="totalVotes">0</span>
+                        <canvas id="sportsPieChart"></canvas>
                     </div>
                 </div>
-
-                <div class="results-panel">
-                    <h3>📊 Resultados por Categoria</h3>
-                    
-                    <div class="category-section">
-                        <div class="category-title">🚀 Esportes de Invasão</div>
-                        <div class="stats" id="invasionStats"></div>
-                    </div>
-                    
-                    <div class="category-section">
-                        <div class="category-title">🏐 Esportes de Rede</div>
-                        <div class="stats" id="networkStats"></div>
-                    </div>
-                    
-                    <div class="database-info">
-                        <h4>💾 Banco de Dados</h4>
-                        <p>Todas as respostas são armazenadas automaticamente. Total de registros: <span id="dbCount">0</span></p>
+                
+                <div class="chart-card">
+                    <h3 class="chart-title">Participação por Turma</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="classesBarChart"></canvas>
                     </div>
                 </div>
+            </div>
+            
+            <!-- Seção de Prêmio em Destaque -->
+            <div class="prize-section">
+                <i class="fas fa-medal prize-icon"></i>
+                <h2>PRÊMIO - INAUGURAÇÃO DA QUADRA</h2>
+                <p>A turma com maior participação será <span class="highlight">honrada com a inauguração da nova quadra</span>!</p>
+                <p>Serão os <span class="highlight">primeiros a pisar no novo piso</span> e participarão de uma cerimônia especial com direito a fotos oficiais e um lanche comemorativo.</p>
+                <p>Confira no gráfico ao lado qual turma está na liderança!</p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="back-button" id="resultsBackButton">Voltar para Votação</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Banco de dados simulado com persistência local
-        let database = JSON.parse(localStorage.getItem('sportsDatabase') || '[]');
-        let sportsData = JSON.parse(localStorage.getItem('sportsData') || '{"Futebol": 0, "Basquete": 0, "Handebol": 0, "Vôlei": 0, "Peteca": 0}');
-
-        // Cores para cada esporte
-        const colors = {
-            'Futebol': '#ff6b6b',
-            'Basquete': '#4ecdc4',
-            'Handebol': '#96ceb4',
-            'Vôlei': '#45b7d1',
-            'Peteca': '#feca57'
+        // Armazenamento de dados com os valores atualizados
+        let votesData = {
+            sports: {
+                'Futsal': 0,
+                'Basquete': 0,
+                'Handebol': 0,
+                'Peteca': 0,
+                'Vôlei': 0
+            },
+            classes: {
+                '6º ano regular': 31,
+                '6º ano integral': 19,
+                '7º ano regular': 26,
+                '7º ano integral': 22,
+                '8º ano regular': 22,
+                '8º ano integral': 18,
+                '9º ano regular': 17,
+                '9º ano integral': 23,
+                '1º ano EMTI': 24,
+                '1º ano regular': 22,
+                '2º ano EMTI': 5,
+                '2º ano regular': 23,
+                '3º ano': 33
+            }
         };
 
-        // Categorias
-        const invasionSports = ['Futebol', 'Basquete', 'Handebol'];
-        const networkSports = ['Vôlei', 'Peteca'];
+        // Dados do usuário atual
+        let currentUser = {
+            name: '',
+            class: '',
+            voted: false
+        };
 
-        let chart;
+        // Funções para mostrar páginas
+        function showPage(pageId) {
+            document.getElementById('registerPage').style.display = 'none';
+            document.getElementById('votePage').style.display = 'none';
+            document.getElementById('resultsPage').style.display = 'none';
+            document.getElementById(pageId).style.display = pageId === 'registerPage' ? 'flex' : 'block';
+        }
 
-        // Inicializar gráfico
-        function initChart() {
-            const ctx = document.getElementById('sportsChart').getContext('2d');
-            chart = new Chart(ctx, {
-                type: 'doughnut',
+        function showVotePage() {
+            showPage('votePage');
+        }
+
+        function showResultsPage() {
+            renderCharts();
+            showPage('resultsPage');
+        }
+
+        // Função para renderizar os gráficos
+        function renderCharts() {
+            // Gráfico de Pizza (Esportes)
+            const pieCtx = document.getElementById('sportsPieChart').getContext('2d');
+            new Chart(pieCtx, {
+                type: 'pie',
                 data: {
-                    labels: Object.keys(sportsData),
+                    labels: Object.keys(votesData.sports),
                     datasets: [{
-                        data: Object.values(sportsData),
-                        backgroundColor: Object.values(colors),
-                        borderWidth: 3,
-                        borderColor: '#fff',
-                        hoverBorderWidth: 5,
-                        hoverBorderColor: '#fff'
+                        data: Object.values(votesData.sports),
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'
+                        ],
+                        borderWidth: 2
                     }]
                 },
                 options: {
@@ -731,128 +1155,171 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom',
+                            position: 'right',
                             labels: {
-                                padding: 20,
                                 font: {
-                                    size: 14,
-                                    weight: 'bold'
+                                    size: 14
                                 },
-                                usePointStyle: true,
-                                pointStyle: 'circle'
+                                padding: 20
                             }
                         },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((context.parsed * 100) / total).toFixed(1) : 0;
-                                    return `${context.label}: ${context.parsed} votos (${percentage}%)`;
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} votos (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de Colunas (Turmas)
+            const barCtx = document.getElementById('classesBarChart').getContext('2d');
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(votesData.classes),
+                    datasets: [{
+                        label: 'Participantes',
+                        data: Object.values(votesData.classes),
+                        backgroundColor: '#4ecdc4',
+                        borderColor: '#2a4d69',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                font: {
+                                    size: 12
                                 }
                             },
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
-                            borderColor: '#fff',
-                            borderWidth: 1
+                            title: {
+                                display: true,
+                                text: 'Quantidade de Participantes',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 11
+                                },
+                                maxRotation: 45,
+                                minRotation: 45
+                            },
+                            title: {
+                                display: true,
+                                text: 'Turmas',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
                         }
                     },
-                    animation: {
-                        animateRotate: true,
-                        animateScale: true,
-                        duration: 1000
-                    },
-                    cutout: '50%'
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Participantes: ${context.raw}`;
+                                }
+                            }
+                        }
+                    }
                 }
             });
         }
 
-        // Processar formulário de registro
+        // Event Listeners
         document.getElementById('registrationForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const name = document.getElementById('studentName').value;
-            const studentClass = document.getElementById('studentClass').value;
-            const sport = document.getElementById('sportChoice').value;
+            // Coletar dados do formulário
+            currentUser.name = document.getElementById('studentName').value;
+            currentUser.class = document.getElementById('studentClass').value;
             
-            // Adicionar ao banco de dados
-            const student = {
-                id: database.length + 1,
-                name: name,
-                class: studentClass,
-                sport: sport,
-                timestamp: new Date().toISOString()
-            };
+            // Simular carregamento
+            document.getElementById('loader').style.display = 'flex';
             
-            database.push(student);
-            sportsData[sport]++;
-            
-            // Salvar no localStorage para persistir os votos
-            localStorage.setItem('sportsDatabase', JSON.stringify(database));
-            localStorage.setItem('sportsData', JSON.stringify(sportsData));
-            
-            // Mostrar informações do usuário
-            document.getElementById('userInfo').innerHTML = `
-                👤 ${name} - ${studentClass} | Voto: ${sport}
-            `;
-            
-            // Ir para página principal
-            document.getElementById('registerPage').style.display = 'none';
-            document.getElementById('mainPage').style.display = 'block';
-            
-            // Inicializar e atualizar gráfico
-            initChart();
-            updateStats();
+            setTimeout(() => {
+                document.getElementById('loader').style.display = 'none';
+                showVotePage();
+            }, 1500);
         });
 
-        // Atualizar estatísticas
-        function updateStats() {
-            const total = Object.values(sportsData).reduce((a, b) => a + b, 0);
-            document.getElementById('totalVotes').textContent = total;
-            document.getElementById('dbCount').textContent = database.length;
-            
-            // Atualizar gráfico
-            if (chart) {
-                chart.data.datasets[0].data = Object.values(sportsData);
-                chart.update('active');
-            }
-            
-            // Estatísticas de esportes de invasão
-            const invasionContainer = document.getElementById('invasionStats');
-            invasionContainer.innerHTML = '';
-            invasionSports.forEach(sport => {
-                const votes = sportsData[sport];
-                const percentage = total > 0 ? ((votes / total) * 100).toFixed(1) : 0;
-                const statItem = document.createElement('div');
-                statItem.className = 'stat-item';
-                statItem.innerHTML = `
-                    <span class="stat-label">${sport}</span>
-                    <span class="stat-value">${votes} (${percentage}%)</span>
-                `;
-                invasionContainer.appendChild(statItem);
+        // Botões de votação
+        document.querySelectorAll('.vote-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const sportCard = this.closest('.sport-card');
+                const sport = sportCard.dataset.sport;
+                
+                // Registrar voto
+                votesData.sports[sport]++;
+                currentUser.voted = true;
+                
+                // Feedback visual
+                sportCard.style.transform = 'scale(1.05)';
+                sportCard.style.boxShadow = '0 0 25px rgba(78, 205, 196, 0.7)';
+                sportCard.style.background = 'rgba(78, 205, 196, 0.2)';
+                
+                setTimeout(() => {
+                    sportCard.style.transform = '';
+                    sportCard.style.boxShadow = '';
+                    sportCard.style.background = '';
+                    alert(`Obrigado por votar em ${sport}! Seu voto foi registrado.`);
+                }, 500);
             });
-            
-            // Estatísticas de esportes de rede
-            const networkContainer = document.getElementById('networkStats');
-            networkContainer.innerHTML = '';
-            networkSports.forEach(sport => {
-                const votes = sportsData[sport];
-                const percentage = total > 0 ? ((votes / total) * 100).toFixed(1) : 0;
-                const statItem = document.createElement('div');
-                statItem.className = 'stat-item';
-                statItem.innerHTML = `
-                    <span class="stat-label">${sport}</span>
-                    <span class="stat-value">${votes} (${percentage}%)</span>
-                `;
-                networkContainer.appendChild(statItem);
-            });
-        }
+        });
 
-        // Console para verificar banco de dados (apenas para desenvolvimento)
-        window.viewDatabase = function() {
-            console.log('Banco de Dados:', database);
-            console.log('Estatísticas:', sportsData);
-        };
+        // Botões de navegação
+        document.getElementById('voteBackButton').addEventListener('click', function() {
+            showPage('registerPage');
+        });
+
+        document.getElementById('viewResultsBtn').addEventListener('click', function() {
+            showResultsPage();
+        });
+
+        document.getElementById('resultsBackButton').addEventListener('click', function() {
+            showVotePage();
+        });
+
+        // Elementos flutuantes - animação
+        const floatingBalls = document.querySelectorAll('.floating-ball');
+        floatingBalls.forEach(ball => {
+            ball.style.animationDuration = `${Math.random() * 5 + 5}s`;
+        });
+
+        // Inicializar dados de exemplo para esportes
+        function initializeSampleSportsData() {
+            votesData.sports = {
+                'Futsal': 42,
+                'Basquete': 35,
+                'Handebol': 28,
+                'Peteca': 20,
+                'Vôlei': 38
+            };
+        }
+        
+        // Inicializar dados de exemplo para esportes
+        initializeSampleSportsData();
     </script>
 </body>
 </html>
